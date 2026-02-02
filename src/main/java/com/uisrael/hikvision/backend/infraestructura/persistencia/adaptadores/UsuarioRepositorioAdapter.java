@@ -1,14 +1,16 @@
 package com.uisrael.hikvision.backend.infraestructura.persistencia.adaptadores;
 
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.stereotype.Component;
+
 import com.uisrael.hikvision.backend.dominio.entidades.Usuario;
 import com.uisrael.hikvision.backend.dominio.puertos.repositorio.UsuarioRepositorioPort;
 import com.uisrael.hikvision.backend.infraestructura.persistencia.jpa.repositorios.UsuarioJpaRepository;
 import com.uisrael.hikvision.backend.infraestructura.persistencia.mapeadores.UsuarioJpaMapper;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
@@ -41,5 +43,10 @@ public class UsuarioRepositorioAdapter implements UsuarioRepositorioPort {
     @Override
     public void eliminarPorId(Long id) {
         usuarioJpaRepository.deleteById(id);
+    }
+
+    @Override
+    public boolean existePorId(Long id) {
+        return usuarioJpaRepository.existsById(id);
     }
 }

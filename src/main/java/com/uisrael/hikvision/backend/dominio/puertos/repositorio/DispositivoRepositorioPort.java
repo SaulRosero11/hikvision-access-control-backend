@@ -17,4 +17,6 @@ public interface DispositivoRepositorioPort {
     List<Dispositivo> listar();
 
     void eliminarPorId(Long id);
+
+    boolean existePorId(Long id);
 }

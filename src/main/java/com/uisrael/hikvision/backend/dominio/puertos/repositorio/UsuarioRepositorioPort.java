@@ -15,4 +15,6 @@ public interface UsuarioRepositorioPort {
     List<Usuario> listar();
 
     void eliminarPorId(Long id);
+
+    boolean existePorId(Long id);
 }
