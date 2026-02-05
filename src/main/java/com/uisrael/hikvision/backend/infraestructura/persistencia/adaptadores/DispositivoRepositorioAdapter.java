@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import com.uisrael.hikvision.backend.dominio.entidades.Dispositivo;
 import com.uisrael.hikvision.backend.dominio.puertos.repositorio.DispositivoRepositorioPort;
 import com.uisrael.hikvision.backend.infraestructura.persistencia.jpa.repositorios.DispositivoJpaRepository;
+import com.uisrael.hikvision.backend.infraestructura.persistencia.jpa.repositorios.PisoJpaRepository;
 import com.uisrael.hikvision.backend.infraestructura.persistencia.mapeadores.DispositivoJpaMapper;
 
 import lombok.RequiredArgsConstructor;
@@ -15,12 +16,17 @@ import lombok.RequiredArgsConstructor;
 @Component
 @RequiredArgsConstructor
 public class DispositivoRepositorioAdapter implements DispositivoRepositorioPort {
-	private final DispositivoJpaRepository dispositivoJpaRepository;
+
+    private final DispositivoJpaRepository dispositivoJpaRepository;
+    private final PisoJpaRepository pisoJpaRepository;
     private final DispositivoJpaMapper mapper = new DispositivoJpaMapper();
 
     @Override
     public Dispositivo guardar(Dispositivo dispositivo) {
-        var entidad = mapper.aJpa(dispositivo);
+        var pisoJpa = dispositivo.getPisoId() != null
+                ? pisoJpaRepository.findById(dispositivo.getPisoId()).orElse(null)
+                : null;
+        var entidad = mapper.aJpa(dispositivo, pisoJpa);
         var guardado = dispositivoJpaRepository.save(entidad);
         return mapper.aDominio(guardado);
     }
@@ -38,6 +44,18 @@ public class DispositivoRepositorioAdapter implements DispositivoRepositorioPort
     @Override
     public Optional<Dispositivo> buscarPorIp(String ip) {
         return dispositivoJpaRepository.findByIp(ip).map(mapper::aDominio);
+    }
+
+    @Override
+    public Optional<Dispositivo> buscarPorMacAddress(String macAddress) {
+        return dispositivoJpaRepository.findByMacAddress(macAddress).map(mapper::aDominio);
+    }
+
+    @Override
+    public List<Dispositivo> listarPorPisoId(Long pisoId) {
+        return dispositivoJpaRepository.findByPiso_Id(pisoId).stream()
+                .map(mapper::aDominio)
+                .toList();
     }
 
     @Override

@@ -26,55 +26,68 @@ import jakarta.validation.Valid;
 @RequestMapping("/api/dispositivo")
 public class DispositivoControlador {
 
-  private final IDispositivoCasoUso dispositivoCasoUso;
-  private final IDispositivoDtoMapper mapper;
+    private final IDispositivoCasoUso dispositivoCasoUso;
+    private final IDispositivoDtoMapper mapper;
 
-  public DispositivoControlador(IDispositivoCasoUso dispositivoCasoUso, IDispositivoDtoMapper mapper) {
-    this.dispositivoCasoUso = dispositivoCasoUso;
-    this.mapper = mapper;
-  }
+    public DispositivoControlador(IDispositivoCasoUso dispositivoCasoUso, IDispositivoDtoMapper mapper) {
+        this.dispositivoCasoUso = dispositivoCasoUso;
+        this.mapper = mapper;
+    }
 
-  @GetMapping
-  public List<DispositivoResponseDTO> listar() {
-    return dispositivoCasoUso.listar().stream().map(mapper::toResponseDto).toList();
-  }
+    @GetMapping
+    public List<DispositivoResponseDTO> listar() {
+        return dispositivoCasoUso.listar().stream().map(mapper::toResponseDto).toList();
+    }
 
-  @GetMapping("/{id}")
-  public DispositivoResponseDTO buscarPorId(@PathVariable Long id) {
-    return dispositivoCasoUso.buscarPorId(id)
-        .map(mapper::toResponseDto)
-        .orElseThrow(() -> new EntityNotFoundException("Dispositivo no encontrado con id: " + id));
-  }
+    @GetMapping("/{id}")
+    public DispositivoResponseDTO buscarPorId(@PathVariable Long id) {
+        return dispositivoCasoUso.buscarPorId(id)
+                .map(mapper::toResponseDto)
+                .orElseThrow(() -> new EntityNotFoundException("Dispositivo no encontrado con id: " + id));
+    }
 
-  @GetMapping("/codigo/{codigo}")
-  public DispositivoResponseDTO buscarPorCodigo(@PathVariable String codigo) {
-    return dispositivoCasoUso.buscarPorCodigo(codigo)
-        .map(mapper::toResponseDto)
-        .orElseThrow(() -> new EntityNotFoundException("Dispositivo no encontrado con codigo: " + codigo));
-  }
+    @GetMapping("/codigo/{codigo}")
+    public DispositivoResponseDTO buscarPorCodigo(@PathVariable String codigo) {
+        return dispositivoCasoUso.buscarPorCodigo(codigo)
+                .map(mapper::toResponseDto)
+                .orElseThrow(() -> new EntityNotFoundException("Dispositivo no encontrado con codigo: " + codigo));
+    }
 
-  @GetMapping("/ip/{ip}")
-  public DispositivoResponseDTO buscarPorIp(@PathVariable String ip) {
-    return dispositivoCasoUso.buscarPorIp(ip)
-        .map(mapper::toResponseDto)
-        .orElseThrow(() -> new EntityNotFoundException("Dispositivo no encontrado con ip: " + ip));
-  }
+    @GetMapping("/ip/{ip}")
+    public DispositivoResponseDTO buscarPorIp(@PathVariable String ip) {
+        return dispositivoCasoUso.buscarPorIp(ip)
+                .map(mapper::toResponseDto)
+                .orElseThrow(() -> new EntityNotFoundException("Dispositivo no encontrado con ip: " + ip));
+    }
 
-  @PostMapping
-  @ResponseStatus(HttpStatus.CREATED)
-  public DispositivoResponseDTO guardar(@Valid @RequestBody DispositivoRequestDTO request) {
-    return mapper.toResponseDto(dispositivoCasoUso.guardar(mapper.toDomain(request)));
-  }
+    @GetMapping("/mac/{macAddress}")
+    public DispositivoResponseDTO buscarPorMacAddress(@PathVariable String macAddress) {
+        return dispositivoCasoUso.buscarPorMacAddress(macAddress)
+                .map(mapper::toResponseDto)
+                .orElseThrow(() -> new EntityNotFoundException("Dispositivo no encontrado con mac: " + macAddress));
+    }
 
-  @PutMapping("/{id}")
-  public DispositivoResponseDTO actualizar(@PathVariable Long id, @Valid @RequestBody DispositivoRequestDTO request) {
-    return mapper.toResponseDto(dispositivoCasoUso.actualizar(id, mapper.toDomain(request)));
-  }
+    @GetMapping("/piso/{pisoId}")
+    public List<DispositivoResponseDTO> listarPorPiso(@PathVariable Long pisoId) {
+        return dispositivoCasoUso.listarPorPisoId(pisoId).stream()
+                .map(mapper::toResponseDto)
+                .toList();
+    }
 
-  @DeleteMapping("/{id}")
-  public ResponseEntity<Void> eliminar(@PathVariable Long id) {
-    dispositivoCasoUso.eliminarPorId(id);
-    return ResponseEntity.noContent().build();
-  }
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public DispositivoResponseDTO guardar(@Valid @RequestBody DispositivoRequestDTO request) {
+        return mapper.toResponseDto(dispositivoCasoUso.guardar(mapper.toDomain(request)));
+    }
 
+    @PutMapping("/{id}")
+    public DispositivoResponseDTO actualizar(@PathVariable Long id, @Valid @RequestBody DispositivoRequestDTO request) {
+        return mapper.toResponseDto(dispositivoCasoUso.actualizar(id, mapper.toDomain(request)));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
+        dispositivoCasoUso.eliminarPorId(id);
+        return ResponseEntity.noContent().build();
+    }
 }

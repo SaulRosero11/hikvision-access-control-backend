@@ -26,51 +26,47 @@ import jakarta.validation.Valid;
 @RequestMapping("/api/usuario")
 public class UsuarioControlador {
 
-  private final IUsuarioCasoUso usuarioCasoUso;
-  private final IUsuarioDtoMapper mapper;
+    private final IUsuarioCasoUso usuarioCasoUso;
+    private final IUsuarioDtoMapper mapper;
 
-  public UsuarioControlador(IUsuarioCasoUso usuarioCasoUso, IUsuarioDtoMapper mapper) {
-    this.usuarioCasoUso = usuarioCasoUso;
-    this.mapper = mapper;
-  }
+    public UsuarioControlador(IUsuarioCasoUso usuarioCasoUso, IUsuarioDtoMapper mapper) {
+        this.usuarioCasoUso = usuarioCasoUso;
+        this.mapper = mapper;
+    }
 
-  @GetMapping
-  public List<UsuarioResponseDTO> listar() {
-    return usuarioCasoUso.listar().stream().map(mapper::toResponseDto).toList();
-  }
+    @GetMapping
+    public List<UsuarioResponseDTO> listar() {
+        return usuarioCasoUso.listar().stream().map(mapper::toResponseDto).toList();
+    }
 
-  @GetMapping("/{id}")
-  public UsuarioResponseDTO buscarPorId(@PathVariable Long id) {
+    @GetMapping("/{id}")
+    public UsuarioResponseDTO buscarPorId(@PathVariable Long id) {
+        return usuarioCasoUso.buscarPorId(id)
+                .map(mapper::toResponseDto)
+                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado con id: " + id));
+    }
 
-    return usuarioCasoUso.buscarPorId(id)
-        .map(mapper::toResponseDto)
-        .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado con id: " + id));
-  }
+    @GetMapping("/identificacion/{identificacion}")
+    public UsuarioResponseDTO buscarPorIdentificacion(@PathVariable String identificacion) {
+        return usuarioCasoUso.buscarPorIdentificacion(identificacion)
+                .map(mapper::toResponseDto)
+                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado con identificacion: " + identificacion));
+    }
 
-  @GetMapping("/{identificacion}")
-  public UsuarioResponseDTO buscarPorIdentificacion(@PathVariable String identificacion) {
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public UsuarioResponseDTO guardar(@Valid @RequestBody UsuarioRequestDTO request) {
+        return mapper.toResponseDto(usuarioCasoUso.guardar(mapper.toDomain(request)));
+    }
 
-    return usuarioCasoUso.buscarPorIdentificacion(identificacion)
-        .map(mapper::toResponseDto)
-        .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado con id: " + identificacion));
-  }
+    @PutMapping("/{id}")
+    public UsuarioResponseDTO actualizar(@PathVariable Long id, @Valid @RequestBody UsuarioRequestDTO request) {
+        return mapper.toResponseDto(usuarioCasoUso.actualizar(id, mapper.toDomain(request)));
+    }
 
-  @PostMapping
-  @ResponseStatus(HttpStatus.CREATED)
-  public UsuarioResponseDTO guardar(@Valid @RequestBody UsuarioRequestDTO request) {
-
-    return mapper.toResponseDto(usuarioCasoUso.guardar(mapper.toDomain(request)));
-  }
-
-  @PutMapping("/{id}")
-  public UsuarioResponseDTO actualizar(@PathVariable Long id, @Valid @RequestBody UsuarioRequestDTO request) {
-    return mapper.toResponseDto(usuarioCasoUso.actualizar(id, mapper.toDomain(request)));
-  }
-
-  @DeleteMapping("/{id}")
-  public ResponseEntity<Void> eliminar(@PathVariable Long id) {
-    usuarioCasoUso.eliminarPorId(id);
-    return ResponseEntity.noContent().build();
-  }
-
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
+        usuarioCasoUso.eliminarPorId(id);
+        return ResponseEntity.noContent().build();
+    }
 }
