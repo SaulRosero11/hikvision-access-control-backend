@@ -22,6 +22,7 @@ import com.uisrael.hikvisionadmin.domain.exceptions.DomainException;
 import com.uisrael.hikvisionadmin.infrastructure.security.AdminUserDetails;
 import com.uisrael.hikvisionadmin.presentation.dto.request.DeviceRequestDTO;
 import com.uisrael.hikvisionadmin.presentation.dto.response.DeviceResponseDTO;
+import com.uisrael.hikvisionadmin.presentation.dto.response.EventReportResponseDTO;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
@@ -89,6 +90,14 @@ public class DeviceController {
   @GetMapping("/{id}/info")
   public ResponseEntity<Map<String, Object>> getDeviceInfo(@PathVariable Long id) {
     return ResponseEntity.ok(deviceUseCase.getDeviceInfo(id));
+  }
+
+  @GetMapping("/{id}/events/report")
+  public ResponseEntity<EventReportResponseDTO> getEventsReport(
+      @PathVariable Long id,
+      @RequestParam String beginTime,
+      @RequestParam String endTime) {
+    return ResponseEntity.ok(deviceUseCase.generateEventsReport(id, beginTime, endTime));
   }
 
   @PostMapping("/{id}/events")

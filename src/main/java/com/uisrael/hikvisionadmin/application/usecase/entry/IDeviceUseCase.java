@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import com.uisrael.hikvisionadmin.presentation.dto.request.DeviceRequestDTO;
 import com.uisrael.hikvisionadmin.presentation.dto.response.DeviceResponseDTO;
+import com.uisrael.hikvisionadmin.presentation.dto.response.EventReportResponseDTO;
 
 public interface IDeviceUseCase {
 
@@ -29,4 +30,6 @@ public interface IDeviceUseCase {
 
   Map<String, Object> searchAccessEvents(Long deviceId, int searchPosition, int maxResults,
       String beginTime, String endTime);
+
+  EventReportResponseDTO generateEventsReport(Long deviceId, String beginTime, String endTime);
 }

@@ -169,6 +169,26 @@ public class HikvisionIsapiClient implements IHikvisionDeviceService {
     return parseJson(response);
   }
 
+  @Override
+  public byte[] downloadImage(String imageUrl, String user, String password) {
+    try (CloseableHttpClient client = createImageClient(user, password)) {
+      HttpGet request = new HttpGet(imageUrl);
+      request.setHeader("ngrok-skip-browser-warning", "true");
+      return client.execute(request, response -> {
+        int statusCode = response.getCode();
+        if (statusCode < 200 || statusCode >= 300) {
+          log.warn("Failed to download image from {} - Status: {}", imageUrl, statusCode);
+          return new byte[0];
+        }
+        HttpEntity entity = response.getEntity();
+        return entity != null ? entity.getContent().readAllBytes() : new byte[0];
+      });
+    } catch (Exception e) {
+      log.warn("Error downloading image from {}: {}", imageUrl, e.getMessage());
+      return new byte[0];
+    }
+  }
+
   // ========== HTTP con DigestAuth ==========
 
   private CloseableHttpClient createDigestClient(String user, String password) {
@@ -180,6 +200,24 @@ public class HikvisionIsapiClient implements IHikvisionDeviceService {
     RequestConfig requestConfig = RequestConfig.custom()
         .setConnectionRequestTimeout(Timeout.ofSeconds(10))
         .setResponseTimeout(Timeout.ofSeconds(30))
+        .build();
+
+    return HttpClients.custom()
+        .setDefaultCredentialsProvider(credentialsProvider)
+        .setDefaultRequestConfig(requestConfig)
+        .build();
+  }
+
+  // Cliente exclusivo para descarga de imágenes: timeout corto (5s) para no bloquear el servicio
+  private CloseableHttpClient createImageClient(String user, String password) {
+    BasicCredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+    credentialsProvider.setCredentials(
+        new AuthScope(null, -1),
+        new UsernamePasswordCredentials(user, password.toCharArray()));
+
+    RequestConfig requestConfig = RequestConfig.custom()
+        .setConnectionRequestTimeout(Timeout.ofSeconds(5))
+        .setResponseTimeout(Timeout.ofSeconds(5))
         .build();
 
     return HttpClients.custom()

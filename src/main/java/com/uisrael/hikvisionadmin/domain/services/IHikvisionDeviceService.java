@@ -88,4 +88,10 @@ public interface IHikvisionDeviceService {
    */
   Map<String, Object> searchAccessEvents(String ip, int port, String user, String password,
       int searchPosition, int maxResults, String beginTime, String endTime);
+
+  /**
+   * Descarga una imagen desde una URL del dispositivo usando DigestAuth.
+   * Retorna byte[] vacío si falla en lugar de lanzar excepción.
+   */
+  byte[] downloadImage(String imageUrl, String user, String password);
 }
